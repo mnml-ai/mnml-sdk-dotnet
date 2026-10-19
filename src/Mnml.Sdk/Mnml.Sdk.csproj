@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- netstandard2.0 loads in .NET Framework 4.8 hosts (Revit 2024 and earlier, Rhino 7); net8.0 everywhere else. -->
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Mnml</RootNamespace>
+    <AssemblyName>Mnml.Sdk</AssemblyName>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <PackageId>Mnml.Sdk</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>mnml</Authors>
+    <Company>mnml</Company>
+    <Description>The official .NET client for the mnml API: architecture renders, edits, enhancements and video. Works in Revit, Rhino, Grasshopper and Dynamo add-ons (netstandard2.0) and modern .NET.</Description>
+    <PackageTags>mnml;architecture;rendering;ai;api;sdk;revit;rhino;grasshopper</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://developers.mnml.ai/sdks</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mnml-ai/mnml-sdk-dotnet</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <InternalsVisibleTo Include="Mnml.Sdk.Tests" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>

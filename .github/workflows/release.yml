@@ -1,0 +1,40 @@
+name: Release
+
+# Publishes to NuGet when a GitHub release is published (tag `v<version>`), with NuGet trusted
+# publishing: a short-lived key is minted for this run, and none is stored.
+# One-time setup on nuget.org: Trusted Publishing → a policy for repository owner mnml-ai,
+# repository mnml-sdk-dotnet, workflow release.yml, environment nuget. Set the repository
+# variable NUGET_USER to the nuget.org account (or organization member) that owns the package.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: nuget
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: The tag matches the package version
+        run: |
+          version=$(grep -oP '(?<=<Version>)[^<]+' src/Mnml.Sdk/Mnml.Sdk.csproj)
+          test "${GITHUB_REF_NAME}" = "v${version}"
+          grep -q "Version = \"${version}\"" src/Mnml.Sdk/MnmlClient.cs
+      - run: dotnet test -c Release
+      - run: dotnet pack src/Mnml.Sdk -c Release -o artifacts
+      - uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ vars.NUGET_USER }}
+      - run: >
+          dotnet nuget push "artifacts/*.nupkg"
+          --api-key "${{ steps.login.outputs.NUGET_API_KEY }}"
+          --source https://api.nuget.org/v3/index.json
