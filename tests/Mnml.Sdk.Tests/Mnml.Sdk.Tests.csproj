@@ -16,6 +16,11 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
 
+  <!-- .NET Framework keeps HttpClient in its own assembly, which an SDK-style project does not reference by default. -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="../../src/Mnml.Sdk/Mnml.Sdk.csproj" />
     <None Include="../../spec/openapi.json" Link="spec/openapi.json" CopyToOutputDirectory="PreserveNewest" />
