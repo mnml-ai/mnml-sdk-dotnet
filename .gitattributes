@@ -1,0 +1,2 @@
+# The test fixtures are raw strings that assume LF line endings, Windows checkouts included.
+* text=auto eol=lf
