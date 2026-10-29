@@ -244,7 +244,10 @@ public class ClientTests
     public void A_region_is_sent_as_the_api_reads_it()
     {
         var json = JsonSerializer.Serialize(Region.Outline((0.1, 0.2), (0.5, 0.2), (0.3, 0.6)), MnmlClient.Json);
-        Assert.Equal("""{"polygon":[[0.1,0.2],[0.5,0.2],[0.3,0.6]]}""", json);
+        // Compared as numbers: .NET Framework writes 0.1 in its round-trip form, 0.10000000000000001, the same double.
+        var polygon = JsonDocument.Parse(json).RootElement.GetProperty("polygon");
+        Assert.Equal(new[] { 0.1, 0.2, 0.5, 0.2, 0.3, 0.6 },
+            polygon.EnumerateArray().SelectMany(p => p.EnumerateArray()).Select(n => n.GetDouble()));
         Assert.Equal("""{"box":{"x":0,"y":0.5,"width":1,"height":0.5}}""",
             JsonSerializer.Serialize(Region.Rectangle(0, 0.5, 1, 0.5), MnmlClient.Json));
     }
