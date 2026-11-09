@@ -34,8 +34,32 @@ var jobs = await mnml.Renders.CreateAndWaitAsync(new RenderRequest
 Console.WriteLine($"{jobs[0].Status} {jobs[0].Outputs[0].Url}");
 ```
 
-Every call spends credits from your prepaid API balance. Top it up in dollars on
+Every call is paid from your prepaid API balance, in US dollars. Top it up on
 [Billing](https://developers.mnml.ai/console/billing).
+
+### Amounts are in dollars
+
+Every amount the API answers with has a US-dollar property, a `decimal` to four places
+(`0.2475m` is 24.75 cents):
+
+| Where                                   | Dollar properties                                              |
+| --------------------------------------- | -------------------------------------------------------------- |
+| a create call (`Renders.CreateAsync` …) | `ChargedUsd`                                                   |
+| `Jobs.GetAsync`                         | `ChargedUsd`, `RefundedUsd`                                    |
+| `Jobs.CancelAsync`                      | `RefundedUsd`                                                  |
+| `Account.GetAsync`                      | `BalanceUsd`, `Key.DailyLimitUsd`, `Limits.DailyUsd`           |
+| `Engines.ListAsync`                     | `Prices.RenderUsd`, `Prices.EditUsd`, video `Prices[i].Usd`    |
+| the `credits.low` webhook               | `BalanceUsd`, `ThresholdUsd`                                   |
+
+```csharp
+var account = await mnml.Account.GetAsync();
+Console.WriteLine($"${account.BalanceUsd} left");
+```
+
+The credit properties beside them (`CreditsCharged`, `CreditsRefunded`, `Credits.Spendable`,
+`DailyCreditLimit`, `DailyCredits`, `Prices.Render` and `Edit`, video `Credits`, and the
+webhook's `Balance` and `Threshold`) are `[Obsolete]`: the compiler warns (CS0618) and names the
+dollar property to read, and a later release removes them.
 
 ## Configuration
 
@@ -95,7 +119,7 @@ the API takes. `Engines.ListAsync()` is the live list, with each engine's price 
 ```csharp
 var catalog = await mnml.Engines.ListAsync();
 foreach (var e in catalog.Engines.Where(e => e.Available))
-    Console.WriteLine($"{e.Name}: {e.Prices.Render} credits a render");
+    Console.WriteLine($"{e.Name}: ${e.Prices.RenderUsd} a render");
 ```
 
 ### Edits and regions
@@ -155,6 +179,7 @@ app.MapPost("/mnml", async (HttpRequest req) =>
     var body = await new StreamReader(req.Body).ReadToEndAsync();
     var ev = Webhooks.Verify(body, name => req.Headers[name].ToString(), secret);
     if (ev.Type == "job.succeeded") Console.WriteLine(ev.AsJob()!.Outputs[0].Url);
+    else if (ev.AsCreditsLow() is { } low) Console.WriteLine($"Balance down to ${low.BalanceUsd}: top up");
     return Results.Ok();
 });
 ```

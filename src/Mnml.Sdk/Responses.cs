@@ -29,7 +29,11 @@ namespace Mnml
         /// <summary>One of <see cref="JobStatuses"/>.</summary>
         [JsonPropertyName("status")] public string Status { get; set; } = "";
 
-        /// <summary>Credits charged for the call.</summary>
+        /// <summary>What the call charged, in US dollars (four decimals: <c>0.2475</c>).</summary>
+        [JsonPropertyName("charged_usd")] public decimal ChargedUsd { get; set; }
+
+        /// <summary>Credits charged for the call. Deprecated: read <see cref="ChargedUsd"/>.</summary>
+        [Obsolete("Read ChargedUsd (charged_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("credits_charged")] public long CreditsCharged { get; set; }
 
         /// <summary>True when this answers an earlier identical request: nothing new was charged.</summary>
@@ -67,10 +71,18 @@ namespace Mnml
         /// <summary>The results. Their links are signed and expire: download what you keep.</summary>
         [JsonPropertyName("outputs")] public List<JobOutput> Outputs { get; set; } = new List<JobOutput>();
 
-        /// <summary>Credits charged.</summary>
+        /// <summary>What the job charged, in US dollars (four decimals).</summary>
+        [JsonPropertyName("charged_usd")] public decimal ChargedUsd { get; set; }
+
+        /// <summary>What came back to the balance (a failed or cancelled job), in US dollars.</summary>
+        [JsonPropertyName("refunded_usd")] public decimal RefundedUsd { get; set; }
+
+        /// <summary>Credits charged. Deprecated: read <see cref="ChargedUsd"/>.</summary>
+        [Obsolete("Read ChargedUsd (charged_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("credits_charged")] public long CreditsCharged { get; set; }
 
-        /// <summary>Credits given back (a failed or cancelled job).</summary>
+        /// <summary>Credits given back. Deprecated: read <see cref="RefundedUsd"/>.</summary>
+        [Obsolete("Read RefundedUsd (refunded_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("credits_refunded")] public long CreditsRefunded { get; set; }
 
         /// <summary>Why it failed, or null.</summary>
@@ -118,7 +130,11 @@ namespace Mnml
         /// <summary><c>refunded</c>, <c>requested</c>, <c>too-late</c> or <c>already-settled</c>.</summary>
         [JsonPropertyName("outcome")] public string Outcome { get; set; } = "";
 
-        /// <summary>Credits given back.</summary>
+        /// <summary>What came back to the balance, in US dollars (four decimals).</summary>
+        [JsonPropertyName("refunded_usd")] public decimal RefundedUsd { get; set; }
+
+        /// <summary>Credits given back. Deprecated: read <see cref="RefundedUsd"/>.</summary>
+        [Obsolete("Read RefundedUsd (refunded_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("credits_refunded")] public long CreditsRefunded { get; set; }
     }
 
@@ -134,7 +150,11 @@ namespace Mnml
         /// <summary><c>paid</c> once the account has topped up its API wallet; it sets the limits.</summary>
         [JsonPropertyName("tier")] public string Tier { get; set; } = "";
 
-        /// <summary>The balance.</summary>
+        /// <summary>What the next call can spend, in US dollars (four decimals).</summary>
+        [JsonPropertyName("balance_usd")] public decimal BalanceUsd { get; set; }
+
+        /// <summary>The balance in credits. Deprecated: read <see cref="BalanceUsd"/>.</summary>
+        [Obsolete("Read BalanceUsd (balance_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("credits")] public AccountCredits Credits { get; set; } = new AccountCredits();
 
         /// <summary>The key this call used.</summary>
@@ -144,10 +164,11 @@ namespace Mnml
         [JsonPropertyName("limits")] public AccountLimits Limits { get; set; } = new AccountLimits();
     }
 
-    /// <summary>The balance.</summary>
+    /// <summary>The balance in credits. Deprecated: read <see cref="Account.BalanceUsd"/>.</summary>
     public sealed class AccountCredits
     {
-        /// <summary>What the next call can spend.</summary>
+        /// <summary>What the next call can spend, in credits. Deprecated: read <see cref="Account.BalanceUsd"/>.</summary>
+        [Obsolete("Read Account.BalanceUsd (balance_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("spendable")] public long Spendable { get; set; }
     }
 
@@ -159,7 +180,11 @@ namespace Mnml
         [JsonPropertyName("allowed_origins")] public List<string> AllowedOrigins { get; set; } = new List<string>();
 #pragma warning restore CS1591
 
-        /// <summary>Your own daily limit for this key, or null for none.</summary>
+        /// <summary>Your own daily limit for this key in US dollars, or null for none.</summary>
+        [JsonPropertyName("daily_limit_usd")] public decimal? DailyLimitUsd { get; set; }
+
+        /// <summary>The same limit in credits. Deprecated: read <see cref="DailyLimitUsd"/>.</summary>
+        [Obsolete("Read DailyLimitUsd (daily_limit_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("daily_credit_limit")] public long? DailyCreditLimit { get; set; }
     }
 
@@ -179,7 +204,11 @@ namespace Mnml
         /// <summary>Jobs that may run at once.</summary>
         [JsonPropertyName("concurrent_jobs")] public int ConcurrentJobs { get; set; }
 
-        /// <summary>Credits this key may still spend per UTC day; null is no limit.</summary>
+        /// <summary>US dollars this key may still spend per UTC day; null is no limit.</summary>
+        [JsonPropertyName("daily_usd")] public decimal? DailyUsd { get; set; }
+
+        /// <summary>The same in credits. Deprecated: read <see cref="DailyUsd"/>.</summary>
+        [Obsolete("Read DailyUsd (daily_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("daily_credits")] public long? DailyCredits { get; set; }
     }
 
@@ -206,20 +235,29 @@ namespace Mnml
         /// <summary>Whether this account may use it now (a paid-only engine needs a paid account).</summary>
         [JsonPropertyName("available")] public bool Available { get; set; }
 
-        /// <summary>Credits per render and per edit.</summary>
+        /// <summary>What a render and an edit cost.</summary>
         [JsonPropertyName("prices")] public EnginePrices Prices { get; set; } = new EnginePrices();
 
         /// <summary>What it can do.</summary>
         [JsonPropertyName("capabilities")] public EngineCapabilities Capabilities { get; set; } = new EngineCapabilities();
     }
 
-    /// <summary>An engine's prices, in credits.</summary>
+    /// <summary>An engine's prices.</summary>
     public sealed class EnginePrices
     {
-#pragma warning disable CS1591
+        /// <summary>One render, in US dollars (four decimals).</summary>
+        [JsonPropertyName("render_usd")] public decimal RenderUsd { get; set; }
+
+        /// <summary>One edit, in US dollars (four decimals).</summary>
+        [JsonPropertyName("edit_usd")] public decimal EditUsd { get; set; }
+
+        /// <summary>One render, in credits. Deprecated: read <see cref="RenderUsd"/>.</summary>
+        [Obsolete("Read RenderUsd (render_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("render")] public long Render { get; set; }
+
+        /// <summary>One edit, in credits. Deprecated: read <see cref="EditUsd"/>.</summary>
+        [Obsolete("Read EditUsd (edit_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("edit")] public long Edit { get; set; }
-#pragma warning restore CS1591
     }
 
     /// <summary>What an engine can do.</summary>
@@ -251,7 +289,11 @@ namespace Mnml
         /// <summary>The clip length, or null for the model's one fixed length.</summary>
         [JsonPropertyName("duration_seconds")] public int? DurationSeconds { get; set; }
 
-        /// <summary>Credits.</summary>
+        /// <summary>One clip of this length, in US dollars (four decimals).</summary>
+        [JsonPropertyName("usd")] public decimal Usd { get; set; }
+
+        /// <summary>The same in credits. Deprecated: read <see cref="Usd"/>.</summary>
+        [Obsolete("Read Usd (usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("credits")] public long Credits { get; set; }
     }
 

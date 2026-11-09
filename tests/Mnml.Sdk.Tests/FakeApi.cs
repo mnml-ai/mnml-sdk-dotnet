@@ -83,7 +83,7 @@ internal static class Fixtures
     public const string Job = """
         {"id":"42","status":"succeeded","kind":"render","engine":"v4.6-ultra",
          "outputs":[{"url":"https://api.test/v2/files/42?exp=1&sig=x","media":"image","expires_at":"2026-10-18T10:00:00Z"}],
-         "credits_charged":30,"credits_refunded":0,"error":null,
+         "charged_usd":0.297,"refunded_usd":0,"credits_charged":30,"credits_refunded":0,"error":null,
          "created_at":"2026-10-18T09:00:00Z","completed_at":"2026-10-18T09:00:40Z"}
         """;
 

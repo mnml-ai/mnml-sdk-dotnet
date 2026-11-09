@@ -79,6 +79,19 @@ public class WebhookTests
         Assert.Equal(expected, Webhooks.Sign(Convert.ToBase64String(Key), "msg_1", 1614265330, """{"test":1}"""));
     }
 
+    [Fact]
+    public void A_credits_low_delivery_reads_in_dollars()
+    {
+        const string low = """{"type":"credits.low","timestamp":"2026-11-09T09:00:00Z","data":{"balance_usd":0.396,"threshold_usd":0.99,"balance":40,"threshold":100}}""";
+        var sig = Webhooks.Sign(Secret, "msg_1", Now.ToUnixTimeSeconds(), low);
+
+        var data = Webhooks.Verify(low, Headers(sig), Secret, Now).AsCreditsLow()!;
+
+        Assert.Equal(0.396m, data.BalanceUsd);
+        Assert.Equal(0.99m, data.ThresholdUsd);
+        Assert.Null(Webhooks.Verify(low, Headers(sig), Secret, Now).AsJob());
+    }
+
     private static byte[] RandomKey()
     {
         var b = new byte[24];
