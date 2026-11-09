@@ -11,7 +11,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <PackageId>Mnml.Sdk</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.2.0</Version>
     <Authors>mnml</Authors>
     <Company>mnml</Company>
     <Description>The official .NET client for the mnml API: architecture renders, edits, enhancements and video. Works in Revit, Rhino, Grasshopper and Dynamo add-ons (netstandard2.0) and modern .NET.</Description>

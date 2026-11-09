@@ -110,9 +110,18 @@ namespace Mnml
     /// <summary><c>credits.low</c>: the balance fell under the threshold (sent at most once a day).</summary>
     public sealed class CreditsLow
     {
-#pragma warning disable CS1591
+        /// <summary>The balance now, in US dollars (four decimals).</summary>
+        [JsonPropertyName("balance_usd")] public decimal BalanceUsd { get; set; }
+
+        /// <summary>The line it fell under, in US dollars.</summary>
+        [JsonPropertyName("threshold_usd")] public decimal ThresholdUsd { get; set; }
+
+        /// <summary>The balance in credits. Deprecated: read <see cref="BalanceUsd"/>.</summary>
+        [Obsolete("Read BalanceUsd (balance_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("balance")] public long Balance { get; set; }
+
+        /// <summary>The threshold in credits. Deprecated: read <see cref="ThresholdUsd"/>.</summary>
+        [Obsolete("Read ThresholdUsd (threshold_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("threshold")] public long Threshold { get; set; }
-#pragma warning restore CS1591
     }
 }

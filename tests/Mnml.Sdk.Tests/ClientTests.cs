@@ -15,7 +15,7 @@ public class ClientTests
     [Fact]
     public async Task A_render_posts_its_body_with_the_key_an_idempotency_key_and_the_image_as_a_data_uri()
     {
-        var api = new FakeApi().Ok("""{"id":"42","ids":["42"],"status":"queued","credits_charged":30,"replayed":false,"notes":[]}""");
+        var api = new FakeApi().Ok("""{"id":"42","ids":["42"],"status":"queued","charged_usd":0.297,"credits_charged":30,"replayed":false,"notes":[]}""");
         using var mnml = api.Client();
 
         var started = await mnml.Renders.CreateAsync(new RenderRequest
@@ -28,6 +28,7 @@ public class ClientTests
 
         Assert.Equal("42", started.Id);
         Assert.Equal(JobStatuses.Queued, started.Status);
+        Assert.Equal(0.297m, started.ChargedUsd);
         var seen = api.Requests.Single();
         Assert.Equal(HttpMethod.Post, seen.Method);
         Assert.Equal("https://api.test/v2/renders", seen.Url);
@@ -48,7 +49,7 @@ public class ClientTests
     {
         var api = new FakeApi()
             .Fail(503, "SERVICE_UNAVAILABLE", edit: r => r.Headers.TryAddWithoutValidation("Retry-After", "5"))
-            .Ok("""{"id":"7","status":"queued","credits_charged":2,"replayed":false,"notes":[]}""");
+            .Ok("""{"id":"7","status":"queued","charged_usd":0.0198,"credits_charged":2,"replayed":false,"notes":[]}""");
         using var mnml = api.Client();
 
         await mnml.Edits.CreateAsync(new EditRequest { Prompt = "Add trees", JobId = "41" });
@@ -144,7 +145,7 @@ public class ClientTests
     [Fact]
     public async Task A_render_that_settled_in_the_held_answer_needs_no_poll()
     {
-        var api = new FakeApi().Ok($$"""{"id":"42","ids":["42"],"status":"succeeded","credits_charged":30,"replayed":false,"notes":[],"jobs":[{{Fixtures.Job}}]}""");
+        var api = new FakeApi().Ok($$"""{"id":"42","ids":["42"],"status":"succeeded","charged_usd":0.297,"credits_charged":30,"replayed":false,"notes":[],"jobs":[{{Fixtures.Job}}]}""");
         using var mnml = api.Client();
 
         var jobs = await mnml.Renders.CreateAndWaitAsync(new RenderRequest { Prompt = "A", Mode = Modes.TextToRender });
@@ -166,12 +167,13 @@ public class ClientTests
     [Fact]
     public async Task Cancel_posts_with_an_idempotency_key()
     {
-        var api = new FakeApi().Ok("""{"id":"42","outcome":"refunded","credits_refunded":30}""");
+        var api = new FakeApi().Ok("""{"id":"42","outcome":"refunded","refunded_usd":0.297,"credits_refunded":30}""");
         using var mnml = api.Client();
 
         var canceled = await mnml.Jobs.CancelAsync("42");
 
         Assert.Equal("refunded", canceled.Outcome);
+        Assert.Equal(0.297m, canceled.RefundedUsd);
         Assert.Equal("https://api.test/v2/jobs/42/cancel", api.Requests.Single().Url);
         Assert.True(api.Requests.Single().Headers.ContainsKey("idempotency-key"));
     }

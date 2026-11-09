@@ -56,7 +56,7 @@ namespace Mnml
     public sealed class MnmlClient : IDisposable
     {
         /// <summary>This SDK's version, sent in the User-Agent.</summary>
-        public const string Version = "0.1.0";
+        public const string Version = "0.2.0";
 
         /// <summary>The longest the API holds an answer (<c>wait</c>), under Cloudflare's 100-second limit.</summary>
         public const int MaxWaitSeconds = 90;

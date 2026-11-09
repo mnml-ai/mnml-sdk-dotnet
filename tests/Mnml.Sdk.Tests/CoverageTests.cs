@@ -104,6 +104,74 @@ public class CoverageTests
         Assert.Equal(Keys(Prop(video, "prices")), Fields(typeof(VideoPrice)));
     }
 
+    /// <summary>Every answer field the spec marks deprecated, as <c>operation: path</c>.</summary>
+    private static string[] SpecDeprecated()
+    {
+        var found = new List<string>();
+        void Walk(string op, JsonElement schema, string path)
+        {
+            var s = schema;
+            var at = path;
+            if (schema.TryGetProperty("items", out var items)) { s = items; at = path + "[]"; }
+            else if (schema.TryGetProperty("anyOf", out var any))
+                foreach (var a in any.EnumerateArray())
+                    if (a.TryGetProperty("properties", out _)) { s = a; break; }
+            if (!s.TryGetProperty("properties", out var props)) return;
+            foreach (var p in props.EnumerateObject())
+            {
+                var name = at.Length == 0 ? p.Name : at + "." + p.Name;
+                if (p.Value.TryGetProperty("deprecated", out var d) && d.ValueKind == JsonValueKind.True)
+                    found.Add(op + ": " + name);
+                Walk(op, p.Value, name);
+            }
+        }
+        Walk("createRender", Data("/v2/renders", "post"), "");
+        Walk("createEdit", Data("/v2/edits", "post"), "");
+        Walk("createEnhancement", Data("/v2/enhancements", "post"), "");
+        Walk("createVideo", Data("/v2/videos", "post"), "");
+        Walk("getJob", Data("/v2/jobs/{id}", "get"), "");
+        Walk("cancelJob", Data("/v2/jobs/{id}/cancel", "post"), "");
+        Walk("getAccount", Data("/v2/account", "get"), "");
+        Walk("listEngines", Data("/v2/engines", "get"), "");
+        return found.OrderBy(k => k, StringComparer.Ordinal).ToArray();
+    }
+
+    /// <summary>The <c>[Obsolete]</c> properties of a type, by their JSON names.</summary>
+    private static string[] Obsolete(Type t, string prefix) =>
+        t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.GetCustomAttribute<ObsoleteAttribute>() != null)
+            .Select(p => prefix + p.GetCustomAttribute<JsonPropertyNameAttribute>()!.Name)
+            .ToArray();
+
+    [Fact]
+    public void The_obsolete_properties_are_the_fields_the_spec_deprecates()
+    {
+        var sdk = new[]
+            {
+                Obsolete(typeof(RenderStarted), "createRender: "),
+                Obsolete(typeof(Job), "createRender: jobs[]."),
+                Obsolete(typeof(JobStarted), "createEdit: "),
+                Obsolete(typeof(JobStarted), "createEnhancement: "),
+                Obsolete(typeof(JobStarted), "createVideo: "),
+                Obsolete(typeof(Job), "getJob: "),
+                Obsolete(typeof(JobCanceled), "cancelJob: "),
+                Obsolete(typeof(Account), "getAccount: "),
+                Obsolete(typeof(AccountCredits), "getAccount: credits."),
+                Obsolete(typeof(AccountKey), "getAccount: key."),
+                Obsolete(typeof(AccountLimits), "getAccount: limits."),
+                Obsolete(typeof(EnginePrices), "listEngines: engines[].prices."),
+                Obsolete(typeof(VideoPrice), "listEngines: video_models[].prices[]."),
+            }
+            .SelectMany(x => x)
+            .OrderBy(k => k, StringComparer.Ordinal)
+            .ToArray();
+        Assert.Equal(SpecDeprecated(), sdk);
+    }
+
+    [Fact]
+    public void The_credits_low_webhook_marks_its_credit_fields_obsolete() =>
+        Assert.Equal(new[] { "balance", "threshold" }, Obsolete(typeof(CreditsLow), "").OrderBy(k => k, StringComparer.Ordinal).ToArray());
+
     [Fact]
     public void The_constants_match_the_enums()
     {
