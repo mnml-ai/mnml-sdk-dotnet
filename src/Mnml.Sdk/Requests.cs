@@ -140,6 +140,12 @@ namespace Mnml
         /// <summary>What should happen in the clip, in plain words.</summary>
         [JsonPropertyName("prompt")] public string? Prompt { get; set; }
 
+        /// <summary>
+        /// Your own prompt, sent to the model exactly as written, in place of <see cref="Prompt"/>.
+        /// Nothing is added, so <see cref="CameraMovement"/> and <see cref="Motion"/> are not applied.
+        /// </summary>
+        [JsonPropertyName("raw_prompt")] public string? RawPrompt { get; set; }
+
         /// <summary>A last frame to move towards.</summary>
         [JsonPropertyName("end_frame")] public Source? EndFrame { get; set; }
 
