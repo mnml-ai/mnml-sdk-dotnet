@@ -23,6 +23,11 @@ compiles (with CS0618 warnings where it reads a credit property).
   `[Obsolete]` properties are exactly the fields the spec deprecates.
 - README reads the dollar properties.
 
+- `RawPrompt` on `VideoRequest`: your own prompt, sent to the video model exactly as written in
+  place of `Prompt`. Nothing is added, so `CameraMovement` and `Motion` are not applied.
+- `ListUsd` and `DiscountPercent` on `JobStarted`, `RenderStarted` and `Job`: the price before
+  your account's API discount, and the discount in percent (0 when none).
+
 ## 0.1.0
 
 First release.

@@ -32,6 +32,12 @@ namespace Mnml
         /// <summary>What the call charged, in US dollars (four decimals: <c>0.2475</c>).</summary>
         [JsonPropertyName("charged_usd")] public decimal ChargedUsd { get; set; }
 
+        /// <summary>The price at list, before your account's API discount, in US dollars.</summary>
+        [JsonPropertyName("list_usd")] public decimal ListUsd { get; set; }
+
+        /// <summary>Your account's API discount on this call, in percent (<c>35.39</c> means 35.39 % off); 0 when none.</summary>
+        [JsonPropertyName("discount_percent")] public decimal DiscountPercent { get; set; }
+
         /// <summary>Credits charged for the call. Deprecated: read <see cref="ChargedUsd"/>.</summary>
         [Obsolete("Read ChargedUsd (charged_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
         [JsonPropertyName("credits_charged")] public long CreditsCharged { get; set; }
@@ -76,6 +82,12 @@ namespace Mnml
 
         /// <summary>What came back to the balance (a failed or cancelled job), in US dollars.</summary>
         [JsonPropertyName("refunded_usd")] public decimal RefundedUsd { get; set; }
+
+        /// <summary>The price at list, before your account's API discount, in US dollars.</summary>
+        [JsonPropertyName("list_usd")] public decimal ListUsd { get; set; }
+
+        /// <summary>Your account's API discount on this call, in percent (<c>35.39</c> means 35.39 % off); 0 when none.</summary>
+        [JsonPropertyName("discount_percent")] public decimal DiscountPercent { get; set; }
 
         /// <summary>Credits charged. Deprecated: read <see cref="ChargedUsd"/>.</summary>
         [Obsolete("Read ChargedUsd (charged_usd). The same amount in API credits ($0.0099 each); a later release removes it.")]
